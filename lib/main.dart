@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'constants.dart';
 import 'home.dart';
 
@@ -50,7 +51,7 @@ class _YummyState extends State<Yummy> {
         brightness: Brightness.dark,
       ),
       home: Home(
-        appTitle: appTitle, //todo: stef delete this?
+        appTitle: appTitle,
 
         changeTheme: changeThemeMode,
         changeColor: changeColor,

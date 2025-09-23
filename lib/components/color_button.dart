@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../constants.dart';
 
 class ColorButton extends StatelessWidget {
@@ -24,7 +25,7 @@ class ColorButton extends StatelessWidget {
       itemBuilder: (context) {
         return List.generate(
           ColorSelection.values.length,
-              (index) {
+          (index) {
             final currentColor = ColorSelection.values[index];
             return PopupMenuItem(
               value: index,
