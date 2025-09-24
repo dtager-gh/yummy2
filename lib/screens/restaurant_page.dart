@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:yummy2/components/item_details.dart';
+import '../components/item_details.dart';
 import '../components/restaurant_item.dart';
+import '../models/cart_manager.dart';
+import '../models/order_manager.dart';
 import '../models/restaurant.dart';
+import 'checkout_page.dart';
 
 class RestaurantPage extends StatefulWidget {
   final Restaurant restaurant;
+  final CartManager cartManager;
+  final OrderManager ordersManager;
 
   const RestaurantPage({
     super.key,
     required this.restaurant,
+    required this.cartManager,
+    required this.ordersManager,
   });
 
   @override
@@ -15,18 +24,22 @@ class RestaurantPage extends StatefulWidget {
 }
 
 class _RestaurantPageState extends State<RestaurantPage> {
-  static const desktopThreshold = 700;
   static const double largeScreenPercentage = 0.9;
   static const double maxWidth = 1000;
+  static const desktopThreshold = 700;
+  static const double drawerWidth = 375.0;
+  final GlobalKey<ScaffoldState> scaffoldKey =
+  GlobalKey<ScaffoldState>();
 
   double _calculateConstrainedWidth(double screenWidth) {
     return (screenWidth > desktopThreshold
-            ? screenWidth * largeScreenPercentage //
+            ? screenWidth * largeScreenPercentage
             : screenWidth)
         .clamp(0.0, maxWidth);
   }
 
   int calculateColumnCount(double screenWidth) {
+    const desktopThreshold = 700;
     return screenWidth > desktopThreshold ? 2 : 1;
   }
 
@@ -47,11 +60,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
       flexibleSpace: FlexibleSpaceBar(
         background: Center(
           child: Padding(
-            padding: const EdgeInsets.only(
-              left: 16.0,
-              right: 16.0,
-              top: 64.0,
-            ),
+            padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 64.0),
             child: Stack(
               children: [
                 Container(
@@ -115,15 +124,13 @@ class _RestaurantPageState extends State<RestaurantPage> {
     );
   }
 
-  Widget _buildGridItem(int index) {
+Widget _buildGridItem(int index) {
     final item = widget.restaurant.items[index];
     return InkWell(
-      onTap: () {
-        // Present Bottom Sheet in the future.
-      },
+      onTap: () => _showBottomSheet(item),
       child: RestaurantItem(item: item),
     );
-  }
+}
 
   Widget _sectionTitle(String title) {
     return Padding(
@@ -170,12 +177,61 @@ class _RestaurantPageState extends State<RestaurantPage> {
     );
   }
 
+void _showBottomSheet(Item item) {
+    showModalBottomSheet<void>(
+      isScrollControlled: true,
+      context: context,
+      constraints: const BoxConstraints(maxWidth: 480),
+      builder: (context) => ItemDetails(
+          item: item,
+          cartManager: widget.cartManager,
+          quantityUpdated: (){
+            setState(() {});
+          },
+      ),
+    );
+}
+
+  Widget _buildEndDrawer() {
+    return SizedBox(
+      width: drawerWidth,
+      child: Drawer(
+        child: CheckoutPage(
+          cartManager: widget.cartManager,
+          didUpdate: () {
+            setState(() {});
+          },
+          onSubmit: (order) {
+            widget.ordersManager.addOrder(order);
+            Navigator.popUntil(context, (route) => route.isFirst);
+          },
+        ),
+      ),
+    );
+  }
+
+  void openDrawer(){
+    scaffoldKey.currentState!.openEndDrawer();
+  }
+
+  Widget _buildFloatingActionButton() {
+    return FloatingActionButton.extended(
+      onPressed: openDrawer,
+      tooltip: 'Cart',
+      icon: const Icon(Icons.shopping_cart),
+      label: Text('${widget.cartManager.items.length} Items in cart'),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final constrainedWidth = _calculateConstrainedWidth(screenWidth);
 
     return Scaffold(
+      key: scaffoldKey,
+      endDrawer: _buildEndDrawer(),
+      floatingActionButton: _buildFloatingActionButton(),
       body: Center(
         child: SizedBox(
           width: constrainedWidth,

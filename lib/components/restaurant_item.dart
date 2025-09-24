@@ -5,7 +5,10 @@ import '../models/restaurant.dart';
 class RestaurantItem extends StatelessWidget {
   final Item item;
 
-  const RestaurantItem({super.key, required this.item});
+  const RestaurantItem({
+    super.key,
+    required this.item,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -91,10 +94,7 @@ class RestaurantItem extends StatelessWidget {
       bottom: 8.0,
       right: 8.0,
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 8.0,
-          vertical: 4.0,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
         decoration: BoxDecoration(
           color: colorScheme.onPrimary,
           borderRadius: BorderRadius.circular(16.0),
