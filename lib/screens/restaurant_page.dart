@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:yummy2/components/item_details.dart';
-import '../components/item_details.dart';
-import '../components/restaurant_item.dart';
-import '../models/cart_manager.dart';
-import '../models/order_manager.dart';
-import '../models/restaurant.dart';
+import '../components/components.dart';
+import '../models/models.dart';
 import 'checkout_page.dart';
+import 'package:go_router/go_router.dart';
+import '../constants.dart';
 
 class RestaurantPage extends StatefulWidget {
   final Restaurant restaurant;
@@ -16,7 +14,7 @@ class RestaurantPage extends StatefulWidget {
     super.key,
     required this.restaurant,
     required this.cartManager,
-    required this.ordersManager,
+    required this.ordersManager
   });
 
   @override
@@ -28,8 +26,7 @@ class _RestaurantPageState extends State<RestaurantPage> {
   static const double maxWidth = 1000;
   static const desktopThreshold = 700;
   static const double drawerWidth = 375.0;
-  final GlobalKey<ScaffoldState> scaffoldKey =
-  GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   double _calculateConstrainedWidth(double screenWidth) {
     return (screenWidth > desktopThreshold
@@ -66,23 +63,18 @@ class _RestaurantPageState extends State<RestaurantPage> {
                 Container(
                   margin: const EdgeInsets.only(bottom: 30.0),
                   decoration: BoxDecoration(
-                    color: Colors.grey,
-                    borderRadius: BorderRadius.circular(16.0),
-                    image: DecorationImage(
-                      image: AssetImage(widget.restaurant.imageUrl),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(16.0),
+                      image: DecorationImage(
+                          image: AssetImage(widget.restaurant.imageUrl),
+                          fit: BoxFit.cover)),
                 ),
                 const Positioned(
                   bottom: 0.0,
                   left: 16.0,
                   child: CircleAvatar(
                     radius: 30,
-                    child: Icon(
-                      Icons.store,
-                      color: Colors.white,
-                    ),
+                    child: Icon(Icons.store, color: Colors.white),
                   ),
                 ),
               ],
@@ -102,45 +94,30 @@ class _RestaurantPageState extends State<RestaurantPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              restaurant.name,
-              style: textTheme.headlineLarge,
-            ),
-            Text(
-              restaurant.address,
-              style: textTheme.bodySmall,
-            ),
-            Text(
-              restaurant.getRatingAndDistance(),
-              style: textTheme.bodySmall,
-            ),
-            Text(
-              restaurant.attributes,
-              style: textTheme.labelSmall,
-            ),
+            Text(restaurant.name, style: textTheme.headlineLarge),
+            Text(restaurant.address, style: textTheme.bodySmall),
+            Text(restaurant.getRatingAndDistance(), style: textTheme.bodySmall),
+            Text(restaurant.attributes, style: textTheme.labelSmall),
           ],
         ),
       ),
     );
   }
 
-Widget _buildGridItem(int index) {
+  Widget _buildGridItem(int index) {
     final item = widget.restaurant.items[index];
     return InkWell(
       onTap: () => _showBottomSheet(item),
       child: RestaurantItem(item: item),
     );
-}
+  }
 
   Widget _sectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Text(
         title,
-        style: const TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-        ),
+        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -177,40 +154,40 @@ Widget _buildGridItem(int index) {
     );
   }
 
-void _showBottomSheet(Item item) {
+  void _showBottomSheet(Item item) {
     showModalBottomSheet<void>(
       isScrollControlled: true,
       context: context,
       constraints: const BoxConstraints(maxWidth: 480),
-      builder: (context) => ItemDetails(
-          item: item,
+      builder: (context) =>
+        ItemDetails(
+          item: item, 
           cartManager: widget.cartManager,
-          quantityUpdated: (){
+          quantityUpdated: () {
             setState(() {});
-          },
-      ),
+          },),
     );
-}
+  }
 
   Widget _buildEndDrawer() {
     return SizedBox(
       width: drawerWidth,
       child: Drawer(
         child: CheckoutPage(
-          cartManager: widget.cartManager,
-          didUpdate: () {
-            setState(() {});
-          },
-          onSubmit: (order) {
-            widget.ordersManager.addOrder(order);
-            Navigator.popUntil(context, (route) => route.isFirst);
-          },
-        ),
-      ),
+        cartManager: widget.cartManager,
+        didUpdate: () {
+          setState(() {});
+        },
+        onSubmit: (order) {
+          widget.ordersManager.addOrder(order);
+          context.pop();
+          context.go('/${YummyTab.orders.value}');
+        },
+      )),
     );
   }
 
-  void openDrawer(){
+  void openDrawer() {
     scaffoldKey.currentState!.openEndDrawer();
   }
 

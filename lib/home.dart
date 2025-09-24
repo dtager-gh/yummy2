@@ -1,36 +1,36 @@
 import 'package:flutter/material.dart';
-import 'screens/myorders_page.dart';
-import 'components/color_button.dart';
-import 'components/theme_button.dart';
+import 'package:go_router/go_router.dart';
 import 'constants.dart';
-import 'models/cart_manager.dart';
-import 'models/order_manager.dart';
-import 'screens/explore_page.dart';
+import '../components/components.dart';
+import '../models/models.dart';
+import '../screens/screens.dart';
+import 'package:go_router/go_router.dart';
 
 class Home extends StatefulWidget {
   const Home({
     super.key,
+    required this.auth,
     required this.cartManager,
     required this.ordersManager,
     required this.changeTheme,
     required this.changeColor,
     required this.colorSelected,
-    required this.appTitle,
+    required this.tab,
   });
 
+  final YummyAuth auth;
+  final int tab;
   final CartManager cartManager;
   final OrderManager ordersManager;
   final ColorSelection colorSelected;
   final void Function(bool useLightMode) changeTheme;
   final void Function(int value) changeColor;
-  final String appTitle;
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  int tab = 0;
   List<NavigationDestination> appBarDestinations = const [
     NavigationDestination(
       icon: Icon(Icons.home_outlined),
@@ -57,18 +57,22 @@ class _HomeState extends State<Home> {
         orderManager: widget.ordersManager,
       ),
       MyOrdersPage(orderManager: widget.ordersManager),
-      const Center(
-        child: Text(
-          'Account Page',
-          style: TextStyle(fontSize: 32.0),
-        ),
-      ),
+      AccountPage(
+          onLogOut: (logout) async {
+            widget.auth.signOut().then((value) => context.go('/login'));
+          },
+          user: User(
+              firstName: 'Stef',
+              lastName: 'P',
+              role: 'Flutteristas',
+              profileImageUrl: 'assets/profile_pics/person_stef.jpeg',
+              points: 100,
+              darkMode: true))
     ];
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.appTitle),
-        elevation: 4.0,
+        elevation: 0.0,
         backgroundColor: Theme.of(context).colorScheme.background,
         actions: [
           ThemeButton(
@@ -80,13 +84,11 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-      body: IndexedStack(index: tab, children: pages),
+      body: IndexedStack(index: widget.tab, children: pages),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: tab,
+        selectedIndex: widget.tab,
         onDestinationSelected: (index) {
-          setState(() {
-            tab = index;
-          });
+          context.go('/$index');
         },
         destinations: appBarDestinations,
       ),

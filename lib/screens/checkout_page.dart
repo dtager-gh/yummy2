@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../models/cart_manager.dart';
-import '../models/order_manager.dart';
+import '../models/models.dart';
 
 class CheckoutPage extends StatefulWidget {
   final CartManager cartManager;
   final Function() didUpdate;
   final Function(Order) onSubmit;
 
-  const CheckoutPage({
-    super.key,
-    required this.cartManager,
-    required this.didUpdate,
-    required this.onSubmit,
-  });
+  const CheckoutPage(
+      {super.key,
+      required this.cartManager,
+      required this.didUpdate,
+      required this.onSubmit});
 
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
@@ -22,14 +20,16 @@ class CheckoutPage extends StatefulWidget {
 class _CheckoutPageState extends State<CheckoutPage> {
   final Map<int, Widget> myTabs = const <int, Widget>{
     0: Text('Delivery'),
-    1: Text('Self Pick-Up'),
+    1: Text('Self Pick-Up')
   };
+
   Set<int> selectedSegment = {0};
   TimeOfDay? selectedTime;
   DateTime? selectedDate;
   final DateTime _firstDate = DateTime(DateTime.now().year - 2);
   final DateTime _lastDate = DateTime(DateTime.now().year + 1);
   final TextEditingController _nameController = TextEditingController();
+
   String formatDate(DateTime? dateTime) {
     if (dateTime == null) {
       return 'Select Date';
@@ -58,15 +58,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
       showSelectedIcon: false,
       segments: const [
         ButtonSegment(
-          value: 0,
-          label: Text('Delivery'),
-          icon: Icon(Icons.pedal_bike),
-        ),
+            value: 0, label: Text('Delivery'), icon: Icon(Icons.pedal_bike)),
         ButtonSegment(
-          value: 1,
-          label: Text('Pickup'),
-          icon: Icon(Icons.local_mall),
-        ),
+            value: 1, label: Text('Pickup'), icon: Icon(Icons.local_mall)),
       ],
       selected: selectedSegment,
       onSelectionChanged: onSegmentSelected,
@@ -132,11 +126,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
             background: Container(),
             secondaryBackground: const SizedBox(
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Icon(Icons.delete),
-                ],
-              ),
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Icon(Icons.delete),
+                  ]),
             ),
             onDismissed: (direction) {
               setState(() {
@@ -173,21 +166,22 @@ class _CheckoutPageState extends State<CheckoutPage> {
       onPressed: widget.cartManager.isEmpty
           ? null
           : () {
-              final selectedSegment = this.selectedSegment;
-              final selectedTime = this.selectedTime;
-              final selectedDate = this.selectedDate;
-              final name = _nameController.text;
-              final items = widget.cartManager.items;
-              final order = Order(
-                selectedSegment: selectedSegment,
-                selectedTime: selectedTime,
-                selectedDate: selectedDate,
-                name: name,
-                items: items,
-              );
-              widget.cartManager.resetCart();
-              widget.onSubmit(order);
-            },
+        final selectedSegment = this.selectedSegment;
+        final selectedTime = this.selectedTime;
+        final selectedDate = this.selectedDate;
+        final name = _nameController.text;
+        final items = widget.cartManager.items;
+
+        final order = Order(
+            selectedSegment: selectedSegment,
+            selectedTime: selectedTime,
+            selectedDate: selectedDate,
+            name: name,
+            items: items);
+
+        widget.cartManager.resetCart();
+        widget.onSubmit(order);
+      },
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Text(
@@ -214,10 +208,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              'Order Details',
-              style: textTheme.headlineSmall,
-            ),
+            Text('Order Details', style: textTheme.headlineSmall),
             const SizedBox(height: 16.0),
             _buildOrderSegmentedType(),
             const SizedBox(height: 16.0),
@@ -236,7 +227,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ],
             ),
             const SizedBox(height: 16.0),
-            const Text('Order Summary'),
+            Text('Order Summary'),
             _buildOrderSummary(context),
             _buildSubmitButton(),
           ],
